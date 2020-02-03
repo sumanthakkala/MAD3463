@@ -1,8 +1,8 @@
 package com.madt.mad3463;
 
 public class SavingsAccount extends Account {
-    protected double InterestRate;
-    protected double OverageChargePerTransaction;
+    public double InterestRate;
+    public double OverageChargePerTransaction;
     double getInterestRate(){
         return InterestRate;
     }

@@ -1,10 +1,10 @@
 package com.madt.mad3463;
 
 public class CreditAccount extends Account {
-    protected double CreditLimit;
-    protected double AmountDue;
-    protected double MinimumPayment;
-    protected double LastPaymentPosted;
+    public double CreditLimit;
+    public double AmountDue;
+    public double MinimumPayment;
+    public double LastPaymentPosted;
 
     void setCreditLimit(double limit){
         CreditLimit = limit;

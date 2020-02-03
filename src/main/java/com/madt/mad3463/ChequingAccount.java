@@ -1,8 +1,8 @@
 package com.madt.mad3463;
 
 public class ChequingAccount extends Account {
-    protected double DailyATMWithdrawLimit;
-    protected double DailyDebitPurchaseLimit;
+    public double DailyATMWithdrawLimit;
+    public double DailyDebitPurchaseLimit;
 
     void setDailyATMWithdrawLimit(double limit){
         DailyATMWithdrawLimit = limit;

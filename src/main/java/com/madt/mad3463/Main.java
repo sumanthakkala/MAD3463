@@ -1,6 +1,8 @@
 package com.madt.mad3463;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,6 +42,9 @@ public class Main {
             }
         } while (ch != 3);
     }
+
+
+    //Account openning handellers
     public static void accountOpenningHandler(){
         System.out.println("Do you have an existing account in MADT Bank? \n" +
                 "Y/N ?: ");
@@ -50,6 +55,7 @@ public class Main {
         }
         else if(yn.equalsIgnoreCase("N")){
             newUsersAccountsOppenner();
+            return;
         }
         else {
             accountOpenningHandler();
@@ -63,10 +69,12 @@ public class Main {
         //Fetch remaining accounts that this user did't open and show them to user and ask him to choose one.
         String accountType = "";
         if(createAccount(accountType, userID) == "OK"){
-
+            System.out.println("Account created successfully! Thank you.");
+            return;
         }
         else {
             System.out.println("Sorry, please try again later.");
+            return;
         }
     }
     public static void newUsersAccountsOppenner(){
@@ -77,14 +85,99 @@ public class Main {
         Random rand = new Random();
         //Account selectedAccount;
         int ch = sc.nextInt();
+        if(createAccount(accountOpennerQuestionare(ch)) == "OK"){
+            return;
+        }
+        else {
+            System.out.println("Sorry, please try again later.");
+            return;
+        }
+    }
+
+
+
+
+
+    //Account Openners (New & Existing)
+    public static String createAccount(Account filledAccountModelObject){
+        Random rand = new Random();
+        HashMap<Long, HashMap<String, Account>> bankDB = new HashMap<Long, HashMap<String, Account>>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        HashMap<String, Account> accountsObjects = new HashMap<String, Account>();
+        File dbJSONFile = new File("textDB//MADT_Bank_DB.json");
+        if (dbJSONFile.length() != 0) {
+            try {
+                bankDB = objectMapper.readValue(dbJSONFile, HashMap.class);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            //bankDB = new MADT_Bank_DB();
+        }
+        filledAccountModelObject.UserID = rand.nextInt(100000);
+        if (AccountTypes.Chequing.equals(filledAccountModelObject.AccountType)) {
+            accountsObjects.put(AccountTypes.Chequing, filledAccountModelObject);
+        }
+        else if (AccountTypes.Savings.equals(filledAccountModelObject.AccountType)) {
+            accountsObjects.put(AccountTypes.Savings, filledAccountModelObject);
+        }
+        else if (AccountTypes.Credit.equals(filledAccountModelObject.AccountType)) {
+            accountsObjects.put(AccountTypes.Credit, filledAccountModelObject);
+        }
+        bankDB.put(filledAccountModelObject.UserID, accountsObjects);
+        try {
+            objectMapper.writeValue(new File("textDB//MADT_Bank_DB.json"), bankDB);
+            System.out.println("Account created successfully! Your userID is "+filledAccountModelObject.UserID+". Please note this for your reference. " +
+                    "You need this ID whenever you want to use our banking system. Thank you.");
+            return "OK";
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+        return "ERROR";
+    }
+    public static String createAccount(String type, long userID){
+        //Fetch existing users DB
+        ObjectMapper objectMapper = new ObjectMapper();
+        HashMap<Long, HashMap<String, Account>> bankDB = new HashMap<Long, HashMap<String, Account>>();
+        Account filledAccountModelObject;
+        try {
+            bankDB = objectMapper.readValue(new File("textDB//MADT_Bank_DB.json"), HashMap.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(type == AccountTypes.Chequing)
+            filledAccountModelObject = accountOpennerQuestionare(1);
+        else if(type == AccountTypes.Savings)
+            filledAccountModelObject = accountOpennerQuestionare(2);
+        else
+            filledAccountModelObject = accountOpennerQuestionare(3);
+        HashMap<String, Account> accountsObjects = bankDB.get(userID);
+        if(accountsObjects.get(type) == null){
+            if (AccountTypes.Chequing.equals(type)) {
+                accountsObjects.put(AccountTypes.Chequing, filledAccountModelObject);
+            }
+            else if (AccountTypes.Savings.equals(type)) {
+                accountsObjects.put(AccountTypes.Savings, filledAccountModelObject);
+            }
+            else if (AccountTypes.Credit.equals(type)) {
+                accountsObjects.put(AccountTypes.Credit, filledAccountModelObject);
+            }
+        }
+
+        return "OK";
+    }
+    public static Account accountOpennerQuestionare(int ch){
+        Scanner sc = new Scanner(System.in);
+        Random rand = new Random();
         System.out.println("Enter your name: ");
-        String name = sc.next();
+        String name = sc.nextLine();
         System.out.println("Enter your phone: ");
-        String phone = sc.next();
+        String phone = sc.nextLine();
         System.out.println("Enter your email: ");
-        String email = sc.next();
+        String email = sc.nextLine();
         System.out.println("Enter your occupation: ");
-        String occupation = sc.next();
+        String occupation = sc.nextLine();
         switch (ch){
             case 1:
                 ChequingAccount chequingAccount = new ChequingAccount();
@@ -101,7 +194,7 @@ public class Main {
                 chequingAccount.TransactionsLimitPerMonth = -1; //unlimited transactions per month (-1)
                 chequingAccount.DailyATMWithdrawLimit = 3000;
                 chequingAccount.DailyDebitPurchaseLimit = 1000;
-                break;
+                return chequingAccount;
             case 2:
                 SavingsAccount savingsAccount = new SavingsAccount();
                 System.out.println("How much amount you want to deposit now?:");
@@ -117,7 +210,7 @@ public class Main {
                 savingsAccount.TransactionsLimitPerMonth = 10; //unlimited transactions per month (-1)
                 savingsAccount.InterestRate = 3.25;
                 savingsAccount.OverageChargePerTransaction = 3;
-                break;
+                return savingsAccount;
             case 3:
                 CreditAccount creditAccount = new CreditAccount();
                 System.out.println("Thank you for your interest in MADT Bank credit account. Your initial limit of credit given to you is CA$1000.");
@@ -135,43 +228,13 @@ public class Main {
                 creditAccount.AmountDue = 0;
                 creditAccount.MinimumPayment = 0;
                 creditAccount.LastPaymentPosted = 0;
-                break;
+                return creditAccount;
         }
+        return new Account();
+    }
 
-    }
-    public static String createAccount(Account filledAccountModelObject){
-        Random rand = new Random();
-        ObjectMapper objectMapper = new ObjectMapper();
-        HashMap<String, Account> accountsObjects = new HashMap<String, Account>();
-        MADT_Bank_DB bankDB = new MADT_Bank_DB();
-        filledAccountModelObject.UserID = rand.nextInt(100000);
-        if (AccountTypes.Chequing.equals(filledAccountModelObject.AccountType)) {
-            accountsObjects.put(AccountTypes.Chequing, filledAccountModelObject);
-        }
-        else if (AccountTypes.Savings.equals(filledAccountModelObject.AccountType)) {
-            accountsObjects.put(AccountTypes.Savings, filledAccountModelObject);
-        }
-        else if (AccountTypes.Credit.equals(filledAccountModelObject.AccountType)) {
-            accountsObjects.put(AccountTypes.Credit, filledAccountModelObject);
-        }
-        bankDB.userAndHisAccountsObject.put(filledAccountModelObject.UserID, accountsObjects);
-        try {
-            objectMapper.writeValue(new File("textDB//MADT_Bank_DB.json"), bankDB.userAndHisAccountsObject);
-        } catch (IOException e) {
-            System.out.println(e);
-        }
-        return "OK";
-    }
-    public static String createAccount(String type, long userID){
-        //Fetch existing users DB
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            MADT_Bank_DB bankDB = objectMapper.readValue(new File("textDB//MADT_Bank_DB.json"), MADT_Bank_DB.class);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return "OK";
-    }
+
+
     public static void accountAccessesHandler(){
 
     }
