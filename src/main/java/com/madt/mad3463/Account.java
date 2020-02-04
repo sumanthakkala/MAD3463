@@ -15,7 +15,7 @@ import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME;
 })
 
 public class Account {
-    public long UserID;
+    public String UserID;
     public String AccountHolderName;
     public String Phone;
     public String Email;
@@ -26,10 +26,10 @@ public class Account {
     public double AccountMonthlyFee;
     public int TransactionsLimitPerMonth; //-1 is unlimited
 
-    void setUserID(long id){
+    void setUserID(String id){
         UserID = id;
     }
-    long getUserID(){
+    String getUserID(){
         return UserID;
     }
 

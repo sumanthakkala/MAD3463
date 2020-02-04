@@ -65,9 +65,43 @@ public class Main {
     public static void existingUserAccountsOpenner(){
         System.out.println("Please enter your User ID: ");
         Scanner sc = new Scanner(System.in);
-        long userID = sc.nextLong();
+        String userID = sc.nextLine();
         //Fetch remaining accounts that this user did't open and show them to user and ask him to choose one.
-        String accountType = "";
+        ArrayList<String> Accounts = new ArrayList<String>();
+        Accounts.add("Chequing");
+        Accounts.add("Savings");
+        Accounts.add("Credit");
+        int ch;
+        Random rand = new Random();
+        HashMap<String, HashMap<String, Account>> bankDB = new HashMap<String, HashMap<String, Account>>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        HashMap<String, Account> accountsObjects = new HashMap<String, Account>();
+        File dbJSONFile = new File("textDB//MADT_Bank_DB.json");
+        if (dbJSONFile.length() != 0) {
+            try {
+                bankDB = objectMapper.readValue(dbJSONFile, HashMap.class);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+
+        accountsObjects = bankDB.get(userID);
+        System.out.println("You already have the following accounts with us.");
+        for (String i : accountsObjects.keySet()) {
+            System.out.println("\u2022 " + i);
+            Accounts.remove(i);
+        }
+        if(accountsObjects.size() == 3){
+            return;
+        }
+        System.out.println("Which of the following account do you want to open? ");
+        for (int i = 0; i < Accounts.size(); i++){
+            System.out.println((i+1) + ". " + Accounts.get(i));
+        }
+        System.out.println("Enter your choice: ");
+        ch = sc.nextInt();
+        String accountType = Accounts.get(ch-1);
         if(createAccount(accountType, userID) == "OK"){
             System.out.println("Account created successfully! Thank you.");
             return;
@@ -101,7 +135,7 @@ public class Main {
     //Account Openners (New & Existing)
     public static String createAccount(Account filledAccountModelObject){
         Random rand = new Random();
-        HashMap<Long, HashMap<String, Account>> bankDB = new HashMap<Long, HashMap<String, Account>>();
+        HashMap<String, HashMap<String, Account>> bankDB = new HashMap<String, HashMap<String, Account>>();
         ObjectMapper objectMapper = new ObjectMapper();
         HashMap<String, Account> accountsObjects = new HashMap<String, Account>();
         File dbJSONFile = new File("textDB//MADT_Bank_DB.json");
@@ -115,7 +149,7 @@ public class Main {
         else {
             //bankDB = new MADT_Bank_DB();
         }
-        filledAccountModelObject.UserID = rand.nextInt(100000);
+        filledAccountModelObject.UserID = Long.toString(rand.nextInt(100000));
         if (AccountTypes.Chequing.equals(filledAccountModelObject.AccountType)) {
             accountsObjects.put(AccountTypes.Chequing, filledAccountModelObject);
         }
@@ -136,10 +170,10 @@ public class Main {
         }
         return "ERROR";
     }
-    public static String createAccount(String type, long userID){
+    public static String createAccount(String type, String userID){
         //Fetch existing users DB
         ObjectMapper objectMapper = new ObjectMapper();
-        HashMap<Long, HashMap<String, Account>> bankDB = new HashMap<Long, HashMap<String, Account>>();
+        HashMap<String, HashMap<String, Account>> bankDB = new HashMap<String, HashMap<String, Account>>();
         Account filledAccountModelObject;
         try {
             bankDB = objectMapper.readValue(new File("textDB//MADT_Bank_DB.json"), HashMap.class);
@@ -153,6 +187,7 @@ public class Main {
         else
             filledAccountModelObject = accountOpennerQuestionare(3);
         HashMap<String, Account> accountsObjects = bankDB.get(userID);
+        filledAccountModelObject.UserID = userID;
         if(accountsObjects.get(type) == null){
             if (AccountTypes.Chequing.equals(type)) {
                 accountsObjects.put(AccountTypes.Chequing, filledAccountModelObject);
@@ -164,8 +199,16 @@ public class Main {
                 accountsObjects.put(AccountTypes.Credit, filledAccountModelObject);
             }
         }
-
-        return "OK";
+        bankDB.replace(userID,accountsObjects);
+        try {
+            objectMapper.writeValue(new File("textDB//MADT_Bank_DB.json"), bankDB);
+            System.out.println("Account created successfully! Your userID is "+filledAccountModelObject.UserID+". Please note this for your reference. " +
+                    "You need this ID whenever you want to use our banking system. Thank you.");
+            return "OK";
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+        return "ERROR";
     }
     public static Account accountOpennerQuestionare(int ch){
         Scanner sc = new Scanner(System.in);
