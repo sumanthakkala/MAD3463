@@ -7,11 +7,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY;
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY)
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value=ChequingAccount.class, name = "ChequingAccount"),
-        @JsonSubTypes.Type(value=SavingsAccount.class, name = "SavingsAccount"),
-        @JsonSubTypes.Type(value=CreditAccount.class, name = "CreditAccount")
+        @JsonSubTypes.Type(value=ChequingAccount.class),
+        @JsonSubTypes.Type(value=SavingsAccount.class),
+        @JsonSubTypes.Type(value=CreditAccount.class),
 })
 
 public class Account {
@@ -48,14 +48,14 @@ public class Account {
     }
 
     void setEmail(String email){
-        Phone = email;
+        Email = email;
     }
     String getEmail(){
         return Email;
     }
 
     void setOccupation(String occupation){
-        Phone = occupation;
+        Occupation = occupation;
     }
     String getOccupation(){
         return Occupation;
