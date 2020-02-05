@@ -319,6 +319,7 @@ public class Main {
     public static void viewProfile(String userID){
         Scanner sc = new Scanner(System.in);
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
         MADT_Bank_DB bank_db = getBankDB();
         Account selectedAccountObject = filterSelectedAccount(userID, bank_db);
         String selectedAccountType = (selectedAccountObject).AccountType;
@@ -338,6 +339,7 @@ public class Main {
     public static void editProfile(String userID){
         Scanner sc = new Scanner(System.in);
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
         MADT_Bank_DB bank_db = getBankDB();
         Account selectedAccountObject = filterSelectedAccount(userID, bank_db);
         System.out.println("Which of the following details you want to update?");
@@ -387,6 +389,7 @@ public class Main {
     public static void depositMoneyHandler(String userID){
         Scanner sc = new Scanner(System.in);
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
         MADT_Bank_DB bank_db = getBankDB();
         Account selectedAccountObject = filterSelectedAccount(userID, bank_db);
         System.out.println("How much amount you want to deposit?");
@@ -406,6 +409,7 @@ public class Main {
     public static void withdrawMoneyHandler(String userID){
         Scanner sc = new Scanner(System.in);
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
         MADT_Bank_DB bank_db = getBankDB();
         Account selectedAccountObject = filterSelectedAccount(userID, bank_db);
         System.out.println("How much amount you want to withdraw?");
@@ -425,6 +429,7 @@ public class Main {
     public static void transferFundsHandler(String userID){
         Scanner sc = new Scanner(System.in);
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
         MADT_Bank_DB bank_db = getBankDB();
         if(bank_db.userAndHisAccountsObject.get(userID).size() == 1){
             System.out.println("You dont have any other accounts registered with us. Please create one to transfer funds between accounts. " +
@@ -472,6 +477,7 @@ public class Main {
     public static void payUtilityBillsHandler(String userID){
         Scanner sc = new Scanner(System.in);
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
         MADT_Bank_DB bank_db = getBankDB();
         Account selectedAccountObject = filterSelectedAccount(userID, bank_db);
         System.out.println("Which of the following utilities you want to pay for?");
@@ -542,6 +548,7 @@ public class Main {
         //JsonNode bankDB;
         HashMap<String, HashMap<String, Account>> bankDBObj = new HashMap<String, HashMap<String, Account>>();
         ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
         File dbJSONFile = new File("textDB//MADT_Bank_DB.json");
         if (dbJSONFile.length() != 0) {
             try {
